@@ -1,16 +1,16 @@
-# HakikiHub Static Reset
+# HakikiHub
 
-HakikiHub is a Kenyan civic integrity platform that helps citizens, employers, procurement teams, hospitals, schools, banks, and regulators verify professionals before trust is placed in them. It combines a Trust Check search engine with an anonymous Amini reporting channel to reduce professional quackery, credential fraud, and fragmented public records. The prototype preserves a polished multi-page web experience, adds seeded professional verification records, encrypted local report/contact storage, AI-generated public record summaries, and context-only public sentiment snapshots. I am most proud of the privacy-first reporting flow and the clear reconciliation panel that shows where confidence comes from instead of hiding the source logic.
+HakikiHub is a Kenyan civic integrity platform that helps individuals (i.e. citizens, employers, procurement teams, hospitals, schools, banks, regulators) verify professionals before trust is placed in them. It combines a Trust Check search engine with an anonymous `Amini` reporting channel to reduce professional quackery, credential fraud, and fragmented public records. The project prototype preserves a polished multi-page web experience, adds seeded professional verification records, encrypted local report/contact storage, AI-generated public record summaries, and context-only public sentiment snapshots. There is also a privacy-first reporting flow and clear reconciliation panel that shows where confidence comes from instead of hiding the source logic.
 
-This folder is the active isolated reset project. It preserves the provided static layouts and layers local API behavior around them.
+This folder is the active isolated project. It preserves the provided static layouts and layers local API behavior around them.
 
 For the civic integrity expansion PRD, investor pitch, implementation direction, and future roadmap, see [PROJECT DOCUMENTATION.md](./PROJECT%20DOCUMENTATION.md).
 
 ## Live Deployment
 
-- Live Render URL: [https://hakikihub.onrender.com](https://hakikihub.onrender.com)
-- Local development URL: `http://localhost:3100`
-- Repository: [https://github.com/mapenzisupaki/hakikihub](https://github.com/mapenzisupaki/hakikihub)
+- [Live Render](https://hakikihub.onrender.com)
+- Local development: `http://localhost:3100`
+- [Project Repository](https://github.com/mapenzisupaki/hakikihub)
 
 The Render deployment runs the same Node server as local development, including static pages, Trust Check APIs, report/contact APIs, and PDF report generation.
 
