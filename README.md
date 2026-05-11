@@ -6,6 +6,14 @@ This folder is the active isolated reset project. It preserves the provided stat
 
 For the civic integrity expansion PRD, investor pitch, implementation direction, and future roadmap, see [PROJECT DOCUMENTATION.md](./PROJECT%20DOCUMENTATION.md).
 
+## Live Deployment
+
+- Live Render URL: [https://hakikihub.onrender.com](https://hakikihub.onrender.com)
+- Local development URL: `http://localhost:3100`
+- Repository: [https://github.com/mapenzisupaki/hakikihub](https://github.com/mapenzisupaki/hakikihub)
+
+The Render deployment runs the same Node server as local development, including static pages, Trust Check APIs, report/contact APIs, and PDF report generation.
+
 ## Pages
 
 - `/` - Home / Landing
@@ -18,9 +26,22 @@ For the civic integrity expansion PRD, investor pitch, implementation direction,
 ## Commands
 
 - `npm run dev` - serve the static reset on `http://localhost:3100`
+- `npm start` - start the Node server for hosted environments such as Render
 - `npm run check` - verify required pages, asset paths, API data, button mappings, and encrypted privacy flows
 
 No install step is required for the current reset. Do not add dependencies without approval.
+
+## Render Deployment
+
+Render can deploy this repo from `main` using the included `render.yaml`.
+
+Manual Render settings, if needed:
+
+- Runtime: `Node`
+- Build command: `npm install`
+- Start command: `npm start`
+- Root directory: leave blank because app files are at the repo root
+- Node version: `20`
 
 ## Local APIs
 
@@ -77,3 +98,4 @@ Social media and online review sentiment is displayed as context only. It does n
 - Current Trust Check data is seeded/local MVP data plus deterministic public intelligence.
 - Manual audit is a moderated report/contact flow for now, not a separate production workflow.
 - PDF export returns a styled local verification PDF for the selected record.
+- The current encrypted report/contact store writes to local filesystem envelopes under `.private`. For production-grade persistence on Render, move submissions to a database or encrypted object storage.
