@@ -2,11 +2,10 @@
 
 ## Project Overview
 - **Project:** HakikiHub - a mobile-first Kenyan professional verification and civic integrity platform.
-- **Active reset project:** `C:\Users\psupa\Hakiki\hakikihub-static-reset`
+- **Active reset project:** `C:\Users\.....\Hakiki`
 - **Target user:** Kenyan citizens, diaspora clients, hospitals, schools, banks, procurement teams, and regulators.
 - **Core journey:** Verify a professional first, then report concerns safely through Amini.
 - **Current MVP status:** Static Visily-derived layout with local Node APIs, seeded Trust Check data, encrypted local report/contact storage, AI public record summaries, context-only sentiment snapshots, and styled PDF verification reports.
-- **Strategic documentation:** `C:\Users\psupa\Hakiki\hakikihub-static-reset\PROJECT DOCUMENTATION.md` describes the civic integrity expansion into candidate red-carding, public official integrity profiles, public resource watch, whistleblower protection, institutional referrals, and investor-facing roadmap.
 
 ## Project Description
 HakikiHub is a Kenyan civic integrity platform that helps citizens, employers, procurement teams, hospitals, schools, banks, and regulators verify professionals before trust is placed in them. It combines a Trust Check search engine with an anonymous Amini reporting channel to reduce professional quackery, credential fraud, and fragmented public records. The prototype preserves a polished multi-page web experience, adds seeded professional verification records, encrypted local report/contact storage, AI-generated public record summaries, and context-only public sentiment snapshots. I am most proud of the privacy-first reporting flow and the clear reconciliation panel that shows where confidence comes from instead of hiding the source logic.
@@ -15,14 +14,13 @@ The longer-term vision is to evolve HakikiHub into a Kenya-first civic integrity
 
 ## Commands
 - **Install:** no new dependencies are required for the reset project.
-- **Dev:** `cd C:\Users\psupa\Hakiki\hakikihub-static-reset && npm run dev`
-- **Check:** `cd C:\Users\psupa\Hakiki\hakikihub-static-reset && npm run check`
+- **Dev:** `cd C:\Users\.....\Hakiki && npm run dev`
+- **Check:** `cd C:\Users\......\Hakiki && npm run check`
 - **Build:** no build step; this is a static HTML reset served by `server.js`.
-- **Docs:** see `PROJECT DOCUMENTATION.md` for PRD, implementation roadmap, safeguards, investor pitch, and future plans.
 
 ## Do
 - Read existing code before modifying anything.
-- Keep changes scoped to `hakikihub-static-reset` unless the user explicitly asks to touch the older root prototype.
+- Keep changes scoped to `Hakiki` unless the user explicitly asks to touch the older root prototype.
 - Match existing static-export patterns and add behavior through `public/app.js`, CSS, or local API services.
 - Keep verification usable without login.
 - Treat source transparency as a product requirement.
