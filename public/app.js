@@ -44,7 +44,8 @@ const professionFilters = new Map([
 const state = {
   selectedRecord: null,
   selectedProfession: "all",
-  trustRefs: null
+  trustRefs: null,
+  mobilePriming: false
 };
 
 function buttonText(target) {
@@ -120,9 +121,8 @@ function pageCanvas() {
 }
 
 function getTrustInput() {
-  return document.body.dataset.page === "trust-check"
-    ? document.querySelector("input[placeholder*='Search HakikiHub']")
-    : null;
+  if (document.body.dataset.page !== "trust-check") return null;
+  return document.querySelector(".mobile-trust-input") || document.querySelector("input[placeholder*='Search HakikiHub']");
 }
 
 function trustQueryValue() {
@@ -214,6 +214,7 @@ function shortDisplayName(record) {
 
 function renderTrustResult(record) {
   state.selectedRecord = record;
+  renderMobileTrustResult(record);
   const refs = captureTrustRefs();
   setText(refs.foundCount, "(1 Found)");
   setText(refs.sortLabel, "Confidence");
@@ -235,11 +236,12 @@ function renderTrustResult(record) {
   setText(refs.recentOne, shortDisplayName(record));
   setText(refs.recentTwo, record.id === "ebk-amina-mwangi" ? "Dr. Samuel M." : "Eng. Amina M.");
   setText(refs.recentThree, record.id === "nca-msingi-roadworks" ? "Dr. Samuel M." : "Msingi Roadworks");
-  showToast(`Trust Check updated for ${shortDisplayName(record)}.`);
+  if (!state.mobilePriming) showToast(`Trust Check updated for ${shortDisplayName(record)}.`);
 }
 
 function renderNoResults(query) {
   state.selectedRecord = null;
+  renderMobileNoResults(query);
   const refs = captureTrustRefs();
   const filter = state.selectedProfession !== "all" ? ` in ${state.selectedProfession}` : "";
   setText(refs.foundCount, "(0 Found)");
@@ -261,6 +263,275 @@ function renderNoResults(query) {
   showToast("No trusted match found. Manual audit is available.");
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function mobileMetricCard(title, body) {
+  return `<article class="mobile-card"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(body)}</p></article>`;
+}
+
+function mobileSourceItems(record) {
+  const sources = record?.sources?.length ? record.sources : [];
+  if (!sources.length) return `<li><span>No matched source</span><strong>Review</strong></li>`;
+  return sources.slice(0, 4).map((source) => (
+    `<li><span>${escapeHtml(source.name)}</span><strong>${escapeHtml(source.status || source.match || "Checked")}</strong></li>`
+  )).join("");
+}
+
+function renderMobileTrustResult(record) {
+  const target = document.querySelector(".mobile-result");
+  if (!target || !record) return;
+  const fields = record.profileFields || {};
+  target.innerHTML = `
+    <article class="mobile-card mobile-profile">
+      <div>
+        <h3>${escapeHtml(record.name)}</h3>
+        <p>${escapeHtml(record.profession)} • license ${escapeHtml(record.registrationNumber)}</p>
+      </div>
+      <div class="mobile-score">${escapeHtml(record.confidenceScore)}%</div>
+      <p><strong>Integrity Score: ${escapeHtml(record.confidenceLabel)}</strong><br>${escapeHtml(record.guidance || "Review the source summary before engagement.")}</p>
+      <div class="mobile-grid">
+        ${mobileMetricCard("Registered since", fields["Registered Since"] || "N/A")}
+        ${mobileMetricCard("Specialization", fields.Specialization || "N/A")}
+        ${mobileMetricCard("Primary facility", fields["Primary Facility"] || "N/A")}
+      </div>
+    </article>
+    <article class="mobile-card">
+      <h3>AI Background Check</h3>
+      <p>${escapeHtml(aiSummary(record))}</p>
+      <ul class="mobile-source-list">${mobileSourceItems(record)}</ul>
+    </article>
+    <div class="mobile-actions">
+      <button class="mobile-button primary" type="button" data-action="download-report">Download Report</button>
+      <button class="mobile-button danger" type="button" data-action="disagree">Disagree? Report</button>
+    </div>
+  `;
+}
+
+function renderMobileNoResults(query) {
+  const target = document.querySelector(".mobile-result");
+  if (!target) return;
+  const filter = state.selectedProfession !== "all" ? ` in ${state.selectedProfession}` : "";
+  target.innerHTML = `
+    <article class="mobile-card">
+      <h3>No trusted match found</h3>
+      <p>No active HakikiHub MVP record matched "${escapeHtml(query || "your search")}"${escapeHtml(filter)}. Request a manual audit or submit concerns through Amini.</p>
+    </article>
+    <div class="mobile-actions">
+      <button class="mobile-button primary" type="button" data-action="manual-audit">Request Manual Audit</button>
+      <button class="mobile-button danger" type="button" data-action="report">Report Anonymously</button>
+    </div>
+  `;
+}
+
+function mobileHeader() {
+  return `
+    <header class="mobile-header">
+      <button class="mobile-brand" type="button" data-action="home" aria-label="Go to homepage">
+        <span class="mobile-brand-mark">⌑</span><span>HakikiHub</span>
+      </button>
+      <button class="mobile-menu-toggle" type="button" data-action="mobile-menu" aria-label="Open menu">☰</button>
+    </header>
+    <nav class="mobile-nav" aria-label="Mobile navigation">
+      <a href="/how-it-works.html">How It Works</a>
+      <a href="/trust-check.html">Trust Check</a>
+      <a href="/report.html">Report</a>
+      <a href="/partners.html">Partners</a>
+      <a href="/contact.html">Contact</a>
+    </nav>
+  `;
+}
+
+function mobileFooter() {
+  return `<footer class="mobile-footer">© 2026 HakikiHub. End-to-end encrypted reporting and source-backed verification.</footer>`;
+}
+
+function createHomeMobile() {
+  return `
+    <main class="mobile-content">
+      <section class="mobile-hero">
+        <span class="mobile-kicker">🇰🇪 Kenya's Leading Integrity Platform</span>
+        <h1 class="mobile-title">Eradicate Fraud.<br>Restore <span>Trust.</span></h1>
+        <p class="mobile-lede">HakikiHub helps citizens, employers, hospitals, schools, banks, and regulators verify professionals and report concerns safely.</p>
+        <div class="mobile-actions">
+          <a class="mobile-button primary" href="/trust-check.html">Run Trust Check</a>
+          <a class="mobile-button danger" href="/report.html">Report Anonymously</a>
+        </div>
+      </section>
+      <section class="mobile-section">
+        <h2>The Stakes are Real</h2>
+        <div class="mobile-grid">
+          ${mobileMetricCard("Life & Death Stakes", "Professional quackery can put patients, clients, and public safety at risk.")}
+          ${mobileMetricCard("Fragmented Data", "Regulator portals, gazette notices, and case records are difficult for the public to reconcile.")}
+          ${mobileMetricCard("Silent Witnesses", "Amini gives citizens a safer channel to submit concerns without exposing identity.")}
+        </div>
+      </section>
+      <section class="mobile-section">
+        <h2>Dual-engine approach</h2>
+        ${mobileMetricCard("Hakiki Verification", "Search seeded regulator-style records and see confidence, source tiers, and reconciliation logic.")}
+        ${mobileMetricCard("Amini Reporting", "Submit secure reports with encrypted local persistence and metadata-safe evidence handling.")}
+      </section>
+    </main>
+  `;
+}
+
+function createTrustMobile() {
+  return `
+    <main class="mobile-content">
+      <section class="mobile-hero">
+        <span class="mobile-kicker">HakikiHub Search Engine</span>
+        <h1 class="mobile-title">Professional <span>Trust Check</span></h1>
+        <p class="mobile-lede">Verify doctors, engineers, lawyers, and contractors through the local MVP reconciliation engine.</p>
+        <div class="mobile-search">
+          <input class="mobile-input mobile-trust-input" placeholder="Search name or license e.g. Samuel, PE-10422" value="Samuel" />
+          <button class="mobile-button primary" type="button" data-action="execute-search">Verify Identity</button>
+        </div>
+        <div class="mobile-filter-row">
+          <button class="mobile-chip is-active-filter" type="button" data-trust-filter="medical">Medical</button>
+          <button class="mobile-chip" type="button" data-trust-filter="engineering">Engineering</button>
+          <button class="mobile-chip" type="button" data-trust-filter="contractors">Contractors</button>
+          <button class="mobile-chip" type="button" data-trust-filter="legal">Legal</button>
+        </div>
+      </section>
+      <section class="mobile-section">
+        <h2>Search Results</h2>
+        <div class="mobile-result"></div>
+      </section>
+    </main>
+  `;
+}
+
+function createHowMobile() {
+  return `
+    <main class="mobile-content">
+      <section class="mobile-hero">
+        <span class="mobile-kicker">System Documentation v2.4</span>
+        <h1 class="mobile-title">Inside the <span>Integrity Engine.</span></h1>
+        <p class="mobile-lede">Three layers of verification and safety remove doubt while protecting whistleblowers.</p>
+      </section>
+      <section class="mobile-section">
+        <h2>Three-tier model</h2>
+        ${mobileMetricCard("Tier 1: Live Synchronization", "Regulator-style records are normalized from KMPDC, EBK, NCA, LSK, and Gazette-style sources.")}
+        ${mobileMetricCard("Tier 2: Deep Intelligence", "Public legal notices, case-style records, and web context are summarized as informational signals.")}
+        ${mobileMetricCard("Tier 3: Secure Reporting", "Amini accepts anonymous reports and protects evidence metadata in the MVP flow.")}
+      </section>
+      <section class="mobile-section">
+        <h2>Source links</h2>
+        <div class="mobile-actions">
+          <a class="mobile-button" href="https://kmpdc.go.ke/Registers.html" target="_blank" rel="noreferrer">KMPDC Source</a>
+          <a class="mobile-button" href="https://new.kenyalaw.org/judgments/" target="_blank" rel="noreferrer">Kenya Law Source</a>
+          <a class="mobile-button" href="https://www.ebk.go.ke/register/" target="_blank" rel="noreferrer">EBK Source</a>
+        </div>
+      </section>
+    </main>
+  `;
+}
+
+function createReportMobile() {
+  return `
+    <main class="mobile-content">
+      <section class="mobile-hero">
+        <span class="mobile-kicker">Secure Portal</span>
+        <h1 class="mobile-title">Report safely. <span>Stay anonymous.</span></h1>
+        <p class="mobile-lede">Amini protects your identity and stores local MVP submissions as encrypted envelopes.</p>
+      </section>
+      <form class="mobile-section">
+        <h2>Submission details</h2>
+        <input class="mobile-input mobile-report-subject" placeholder="Subject or professional involved" />
+        <select class="mobile-select mobile-report-profession">
+          <option>Medical</option><option>Engineering</option><option>Legal</option><option>Contractor</option><option>Other</option>
+        </select>
+        <textarea class="mobile-textarea mobile-report-description" placeholder="Describe what happened, when, and who was involved"></textarea>
+        <button class="mobile-button primary" type="submit">Submit Secure Report</button>
+      </form>
+      <section class="mobile-section">
+        <h2>Safety tips</h2>
+        ${mobileMetricCard("Metadata Ghost", "Evidence metadata is treated as sensitive. Evidence bytes are not stored in this prototype.")}
+        ${mobileMetricCard("Emergency", "If there is immediate danger, contact local authorities directly.")}
+      </section>
+    </main>
+  `;
+}
+
+function createPartnersMobile() {
+  return `
+    <main class="mobile-content">
+      <section class="mobile-hero">
+        <span class="mobile-kicker">Institutional purpose</span>
+        <h1 class="mobile-title">Restoring integrity to Kenya's <span>professional fabric.</span></h1>
+        <p class="mobile-lede">HakikiHub bridges fragmented registers, public intelligence, and safer reporting into one civic trust layer.</p>
+        <div class="mobile-actions">
+          <a class="mobile-button primary" href="/trust-check.html">Explore Trust Check</a>
+          <a class="mobile-button" href="/contact.html">Partner with Us</a>
+        </div>
+      </section>
+      <section class="mobile-section">
+        <h2>Validated data partners</h2>
+        <div class="mobile-grid">
+          ${mobileMetricCard("KMPDC", "Medical regulator-style source for seeded MVP checks.")}
+          ${mobileMetricCard("EBK", "Engineering register-style source for seeded MVP checks.")}
+          ${mobileMetricCard("NCA", "Contractor register-style source for seeded MVP checks.")}
+          ${mobileMetricCard("Kenya Gazette", "Historical public notice context for public intelligence summaries.")}
+        </div>
+      </section>
+    </main>
+  `;
+}
+
+function createContactMobile() {
+  return `
+    <main class="mobile-content">
+      <section class="mobile-hero">
+        <span class="mobile-kicker">Connectivity & Trust</span>
+        <h1 class="mobile-title">Get in touch with the <span>Integrity Engine.</span></h1>
+        <p class="mobile-lede">Use secure channels for support, whistleblower guidance, regulator integrations, and API conversations.</p>
+      </section>
+      <form class="mobile-section">
+        <h2>Contact HakikiHub</h2>
+        <input class="mobile-input mobile-contact-topic" placeholder="Topic e.g. API integration" />
+        <textarea class="mobile-textarea mobile-contact-message" placeholder="How can we help?"></textarea>
+        <button class="mobile-button primary" type="submit">Send Secure Message</button>
+      </form>
+      <section class="mobile-section">
+        <h2>Integration routes</h2>
+        ${mobileMetricCard("Regulator API", "Partner APIs and sync schedules are planned for production integrations.")}
+        ${mobileMetricCard("Privacy-first reporting", "Reports are encrypted locally in the MVP and should move to hardened storage for launch.")}
+      </section>
+    </main>
+  `;
+}
+
+function mobilePageMarkup(page) {
+  const pages = {
+    home: createHomeMobile,
+    "trust-check": createTrustMobile,
+    "how-it-works": createHowMobile,
+    report: createReportMobile,
+    partners: createPartnersMobile,
+    contact: createContactMobile
+  };
+  const create = pages[page] || createHomeMobile;
+  return `<div class="mobile-page">${mobileHeader()}${create()}${mobileFooter()}</div>`;
+}
+
+function createMobilePage() {
+  if (document.querySelector(".mobile-page")) return;
+  document.body.insertAdjacentHTML("afterbegin", mobilePageMarkup(document.body.dataset.page || "home"));
+  if (document.body.dataset.page === "trust-check") {
+    state.mobilePriming = true;
+    window.setTimeout(async () => {
+      await runTrustSearch();
+      state.mobilePriming = false;
+    }, 0);
+  }
+}
+
 async function runTrustSearch() {
   const query = trustQueryValue();
   try {
@@ -277,14 +548,15 @@ async function runTrustSearch() {
 }
 
 async function submitReport() {
-  const input = document.querySelector("input[placeholder*='Dr. John Doe']");
-  const textarea = document.querySelector("textarea[placeholder*='fraud or quackery']");
+  const input = document.querySelector(".mobile-report-subject") || document.querySelector("input[placeholder*='Dr. John Doe']");
+  const profession = document.querySelector(".mobile-report-profession");
+  const textarea = document.querySelector(".mobile-report-description") || document.querySelector("textarea[placeholder*='fraud or quackery']");
   try {
     const result = await api("/api/reports", {
       method: "POST",
       body: JSON.stringify({
         subject: input?.value || "Anonymous subject",
-        profession: "Unknown",
+        profession: profession?.value || "Unknown",
         description: textarea?.value || "Anonymous report submitted from HakikiHub static reset.",
         incidentDate: "",
         location: "",
@@ -299,12 +571,14 @@ async function submitReport() {
 }
 
 async function submitContact(text) {
+  const topic = document.querySelector(".mobile-contact-topic");
+  const message = document.querySelector(".mobile-contact-message");
   try {
     const result = await api("/api/contact", {
       method: "POST",
       body: JSON.stringify({
-        topic: text || "Contact request",
-        message: "Contact request submitted from HakikiHub static reset.",
+        topic: topic?.value || text || "Contact request",
+        message: message?.value || "Contact request submitted from HakikiHub static reset.",
         channel: "web"
       })
     });
@@ -435,6 +709,7 @@ function createLogoHomeTarget() {
   pageCanvas().append(button);
 }
 
+createMobilePage();
 primeTrustFilters();
 addHowItWorksSourceLinks();
 createTrustSearchHitTargets();
@@ -442,6 +717,11 @@ createLogoHomeTarget();
 
 document.addEventListener("click", async (event) => {
   const action = event.target.closest("[data-action]")?.dataset.action;
+  if (action === "mobile-menu") {
+    event.preventDefault();
+    event.target.closest(".mobile-page")?.classList.toggle("menu-open");
+    return;
+  }
   if (action === "home") {
     event.preventDefault();
     window.location.href = "/";
@@ -478,9 +758,10 @@ document.addEventListener("click", async (event) => {
   }
 
   const filter = professionFilters.get(text);
-  if (page === "trust-check" && filter) {
+  const dataFilter = button.dataset.trustFilter;
+  if (page === "trust-check" && (filter || dataFilter)) {
     event.preventDefault();
-    updateFilterState(button, filter);
+    updateFilterState(button, filter || dataFilter);
     await runTrustSearch();
     return;
   }
