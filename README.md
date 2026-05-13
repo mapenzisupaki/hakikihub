@@ -4,8 +4,6 @@ HakikiHub is a Kenyan civic integrity platform that helps individuals (i.e. citi
 
 This folder is the active isolated project. It preserves the provided static layouts and layers local API behavior around them.
 
-For the civic integrity expansion PRD, investor pitch, implementation direction, and future roadmap, see [PROJECT DOCUMENTATION.md](./PROJECT%20DOCUMENTATION.md).
-
 ## Live Deployment
 
 - [Live Render](https://hakikihub.onrender.com)
