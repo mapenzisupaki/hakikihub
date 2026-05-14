@@ -679,7 +679,8 @@ async function submitReport() {
   const input = document.querySelector(".mobile-report-subject")
     || document.querySelector(".static-scale-frame .report-subject-input")
     || document.querySelector("input[placeholder*='Dr. John Doe']");
-  const profession = document.querySelector(".mobile-report-profession");
+  const category = document.querySelector(".mobile-report-profession")
+    || document.querySelector(".static-scale-frame .report-category-input");
   const textarea = document.querySelector(".mobile-report-description")
     || document.querySelector(".static-scale-frame .report-description-input")
     || document.querySelector("textarea[placeholder*='fraud or quackery']");
@@ -690,7 +691,7 @@ async function submitReport() {
       method: "POST",
       body: JSON.stringify({
         subject,
-        profession: profession?.value || "Unknown",
+        profession: category?.value || "Other",
         description,
         incidentDate: "",
         location: "",

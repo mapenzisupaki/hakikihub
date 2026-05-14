@@ -203,19 +203,23 @@ assert.match(appSource, /fallbackTrustRecords/);
 assert.match(appSource, /bindTrustSearchControls/);
 assert.match(appSource, /bindReportControls/);
 assert.match(appSource, /report-subject-input/);
+assert.match(appSource, /report-category-input/);
 assert.match(appSource, /submit-report/);
 assert.match(appSource, /data-trust-filter="all"/);
 assert.match(appSource, /data-profession-option="all"/);
 for (const page of pages) {
   const html = await readFile(page, "utf8");
-  assert.match(html, /\/public\/app\.js\?v=interaction-fix-3/);
-  assert.match(html, /\/public\/static-reset\.css\?v=interaction-fix-3/);
+  assert.match(html, /\/public\/app\.js\?v=interaction-fix-4/);
+  assert.match(html, /\/public\/static-reset\.css\?v=interaction-fix-4/);
 }
 const trustHtml = await readFile("trust-check.html", "utf8");
 assert.match(trustHtml, /trust-query-input/);
 assert.match(trustHtml, /data-action="execute-search"/);
 const reportHtml = await readFile("report.html", "utf8");
 assert.match(reportHtml, /report-subject-input/);
+assert.match(reportHtml, /report-category-input/);
+assert.match(reportHtml, /Credential fraud/);
+assert.match(reportHtml, /Misuse of public resources/);
 assert.match(reportHtml, /report-description-input/);
 assert.match(reportHtml, /data-action="submit-report"/);
 assert.doesNotMatch(appSource, /trust-live-panel/);
