@@ -140,9 +140,12 @@ async function serveStatic(req, res, url) {
   try {
     const data = await readFile(filePath);
     const type = contentTypes[extname(filePath)] || "application/octet-stream";
+    const cacheControl = type.includes("html") || type.includes("css") || type.includes("javascript")
+      ? "no-store"
+      : "public, max-age=3600";
     res.writeHead(200, {
       "Content-Type": type,
-      "Cache-Control": type.includes("html") ? "no-store" : "public, max-age=3600"
+      "Cache-Control": cacheControl
     });
     res.end(data);
   } catch {

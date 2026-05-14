@@ -34,6 +34,7 @@ const routes = new Map([
 ]);
 
 const professionFilters = new Map([
+  ["all", "all"],
   ["medical", "medical"],
   ["legal", "legal"],
   ["engineering", "engineering"],
@@ -47,6 +48,78 @@ const state = {
   trustRefs: null,
   mobilePriming: false
 };
+
+const fallbackTrustRecords = [
+  {
+    id: "kmpdc-samuel-maina",
+    name: "Dr. Samuel Maina, MBChB",
+    shortName: "Dr. Samuel Maina",
+    profession: "Senior Cardiologist",
+    registrationNumber: "MED-55921-2024",
+    licenseStatus: "Verified",
+    confidenceScore: 98,
+    confidenceLabel: "High",
+    profileFields: {
+      "Registered Since": "August 2012",
+      Specialization: "Interventional Cardiology",
+      "Primary Facility": "Kenyatta National Hospital"
+    },
+    sources: [
+      { name: "KMPDC Live Database", status: "Matched" },
+      { name: "Kenya Gazette Records", status: "Matched" },
+      { name: "High Court Registry", status: "Clear" },
+      { name: "Amini Accountability Vault", status: "No Reports" }
+    ],
+    aiSummary: "Dr. Maina is listed as a Senior Consultant in Good Standing. No active malpractice suits or disciplinary suspensions were found in the seeded MVP registry.",
+    guidance: "You can proceed with professional engagement. Download this verification report for your records."
+  },
+  {
+    id: "ebk-amina-mwangi",
+    name: "Eng. Amina Wanjiru Mwangi",
+    shortName: "Eng. Amina Wanjiru Mwangi",
+    profession: "Civil Engineer",
+    registrationNumber: "PE-10422",
+    licenseStatus: "Verified",
+    confidenceScore: 95,
+    confidenceLabel: "High",
+    profileFields: {
+      "Registered Since": "March 2016",
+      Specialization: "Civil Engineering",
+      "Primary Facility": "Independent Consultant"
+    },
+    sources: [
+      { name: "EBK Live Register", status: "Matched" },
+      { name: "Kenya Gazette Records", status: "Matched" },
+      { name: "High Court Registry", status: "Clear" },
+      { name: "Amini Accountability Vault", status: "No Reports" }
+    ],
+    aiSummary: "EBK-style seeded records show an active professional engineer profile with no adverse regulator signal.",
+    guidance: "Trust verified. Keep the source summary with your procurement or engagement file."
+  },
+  {
+    id: "nca-msingi-roadworks",
+    name: "Msingi Roadworks Company",
+    shortName: "Msingi Roadworks Company",
+    profession: "Contractor",
+    registrationNumber: "NCA-771204",
+    licenseStatus: "Under Review",
+    confidenceScore: 64,
+    confidenceLabel: "Low",
+    profileFields: {
+      "Registered Since": "June 2019",
+      Specialization: "Roads and Civil Works",
+      "Primary Facility": "Kisumu"
+    },
+    sources: [
+      { name: "NCA Contractor Register", status: "Partial" },
+      { name: "Kenya Gazette Records", status: "Matched" },
+      { name: "High Court Registry", status: "Clear" },
+      { name: "Amini Accountability Vault", status: "Reports Found" }
+    ],
+    aiSummary: "The contractor appears in the seeded register, but current license renewal evidence is incomplete.",
+    guidance: "Request current licence evidence before engagement. Use Amini if the contractor is actively presenting an expired licence."
+  }
+];
 
 function buttonText(target) {
   return (target.textContent || "").replace(/\s+/g, " ").trim().toLowerCase();
@@ -120,13 +193,60 @@ function pageCanvas() {
   return document.querySelector('[data-type="PAGE"]') || document.body;
 }
 
+function isMobileLayout() {
+  return window.matchMedia("(max-width: 760px)").matches;
+}
+
 function getTrustInput() {
   if (document.body.dataset.page !== "trust-check") return null;
-  return document.querySelector(".mobile-trust-input") || document.querySelector("input[placeholder*='Search HakikiHub']");
+  if (isMobileLayout()) return document.querySelector(".mobile-trust-input");
+  const desktopInput = document.querySelector(".static-scale-frame .trust-query-input")
+    || document.querySelector(".static-scale-frame input[placeholder*='Search HakikiHub']");
+  if (desktopInput) return desktopInput;
+  const candidates = Array.from(document.querySelectorAll("input[placeholder*='Search HakikiHub'], .mobile-trust-input"));
+  return candidates.find((input) => {
+    const rect = input.getBoundingClientRect();
+    const style = window.getComputedStyle(input);
+    return rect.width > 0 && rect.height > 0 && style.display !== "none" && style.visibility !== "hidden";
+  }) || candidates[0] || null;
 }
 
 function trustQueryValue() {
   return getTrustInput()?.value.trim() || "Dr. Samuel Maina";
+}
+
+function normalizedText(value) {
+  return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function professionMatchesFallback(record, selectedProfession) {
+  const selected = normalizedText(selectedProfession);
+  if (!selected || selected === "all") return true;
+  const profession = normalizedText(record.profession);
+  const aliases = {
+    medical: ["medical", "doctor", "cardiologist", "clinician", "physician"],
+    engineering: ["engineering", "engineer"],
+    contractors: ["contractors", "contractor", "construction"],
+    legal: ["legal", "lawyer", "advocate"],
+    architecture: ["architecture", "architect"]
+  };
+  return (aliases[selected] || [selected]).some((alias) => profession.includes(alias));
+}
+
+function fallbackSearchRecords(query) {
+  const needle = normalizedText(query);
+  const results = fallbackTrustRecords.filter((record) => {
+    const haystack = normalizedText([
+      record.name,
+      record.shortName,
+      record.profession,
+      record.registrationNumber,
+      record.licenseStatus,
+      ...Object.values(record.profileFields || {})
+    ].join(" "));
+    return (!needle || haystack.includes(needle)) && professionMatchesFallback(record, state.selectedProfession);
+  });
+  return { status: results.length ? "matched" : "not_found", count: results.length, results };
 }
 
 function allTextElements() {
@@ -393,7 +513,8 @@ function createTrustMobile() {
           <button class="mobile-button primary" type="button" data-action="execute-search">Verify Identity</button>
         </div>
         <div class="mobile-filter-row">
-          <button class="mobile-chip is-active-filter" type="button" data-trust-filter="medical">Medical</button>
+          <button class="mobile-chip is-active-filter" type="button" data-trust-filter="all">All</button>
+          <button class="mobile-chip" type="button" data-trust-filter="medical">Medical</button>
           <button class="mobile-chip" type="button" data-trust-filter="engineering">Engineering</button>
           <button class="mobile-chip" type="button" data-trust-filter="contractors">Contractors</button>
           <button class="mobile-chip" type="button" data-trust-filter="legal">Legal</button>
@@ -543,21 +664,34 @@ async function runTrustSearch() {
     if (!payload.results.length) renderNoResults(query);
     else renderTrustResult(payload.results[0]);
   } catch (error) {
-    showToast(error.message);
+    const fallback = fallbackSearchRecords(query);
+    if (fallback.results.length) {
+      renderTrustResult(fallback.results[0]);
+      showToast("Search used local seeded records while the API is unavailable.");
+    } else {
+      renderNoResults(query);
+      showToast("Search API unavailable. Local seeded records checked.");
+    }
   }
 }
 
 async function submitReport() {
-  const input = document.querySelector(".mobile-report-subject") || document.querySelector("input[placeholder*='Dr. John Doe']");
+  const input = document.querySelector(".mobile-report-subject")
+    || document.querySelector(".static-scale-frame .report-subject-input")
+    || document.querySelector("input[placeholder*='Dr. John Doe']");
   const profession = document.querySelector(".mobile-report-profession");
-  const textarea = document.querySelector(".mobile-report-description") || document.querySelector("textarea[placeholder*='fraud or quackery']");
+  const textarea = document.querySelector(".mobile-report-description")
+    || document.querySelector(".static-scale-frame .report-description-input")
+    || document.querySelector("textarea[placeholder*='fraud or quackery']");
+  const subject = input?.value.trim() || "Anonymous subject";
+  const description = textarea?.value.trim() || "Anonymous report submitted from HakikiHub static reset.";
   try {
     const result = await api("/api/reports", {
       method: "POST",
       body: JSON.stringify({
-        subject: input?.value || "Anonymous subject",
+        subject,
         profession: profession?.value || "Unknown",
-        description: textarea?.value || "Anonymous report submitted from HakikiHub static reset.",
+        description,
         incidentDate: "",
         location: "",
         contactOptional: "",
@@ -671,6 +805,7 @@ function ensureProfessionMenu() {
   menu = document.createElement("div");
   menu.className = "trust-profession-menu";
   menu.innerHTML = `
+    <button type="button" data-profession-option="all">All Professions</button>
     <button type="button" data-profession-option="medical">Medical</button>
     <button type="button" data-profession-option="legal">Legal</button>
     <button type="button" data-profession-option="engineering">Engineering</button>
@@ -709,11 +844,68 @@ function createLogoHomeTarget() {
   pageCanvas().append(button);
 }
 
+function bindTrustSearchControls() {
+  if (document.body.dataset.page !== "trust-check") return;
+  const input = document.querySelector(".static-scale-frame .trust-query-input");
+  const verifyButton = document.querySelector(".static-scale-frame [data-action='execute-search']");
+  const professionButton = document.querySelector(".static-scale-frame [data-type='CONTAINER'].w-\\[164px\\]");
+  if (verifyButton && !verifyButton.dataset.boundSearch) {
+    verifyButton.dataset.boundSearch = "true";
+    verifyButton.addEventListener("click", async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleProfessionMenu(false);
+      await runTrustSearch();
+    });
+  }
+  if (input && !input.dataset.boundSearch) {
+    input.dataset.boundSearch = "true";
+    input.addEventListener("keydown", async (event) => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      await runTrustSearch();
+    });
+  }
+  if (professionButton && !professionButton.dataset.boundSearch) {
+    professionButton.dataset.boundSearch = "true";
+    professionButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleProfessionMenu();
+    });
+  }
+}
+
+function bindReportControls() {
+  if (document.body.dataset.page !== "report") return;
+  const submitButton = document.querySelector(".static-scale-frame [data-action='submit-report']");
+  const description = document.querySelector(".static-scale-frame .report-description-input");
+  if (submitButton && !submitButton.dataset.boundReport) {
+    submitButton.dataset.boundReport = "true";
+    submitButton.addEventListener("click", async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      await submitReport();
+    });
+  }
+  if (description && !description.dataset.boundReport) {
+    description.dataset.boundReport = "true";
+    description.addEventListener("keydown", async (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+        event.preventDefault();
+        await submitReport();
+      }
+    });
+  }
+}
+
 createMobilePage();
 primeTrustFilters();
 addHowItWorksSourceLinks();
 createTrustSearchHitTargets();
 createLogoHomeTarget();
+bindTrustSearchControls();
+bindReportControls();
 
 document.addEventListener("click", async (event) => {
   const action = event.target.closest("[data-action]")?.dataset.action;
@@ -737,6 +929,7 @@ document.addEventListener("click", async (event) => {
     return toggleProfessionMenu();
   }
   if (action === "download-report") return downloadReport();
+  if (action === "submit-report") return submitReport();
   if (action === "timeline") return showTimeline();
   if (action === "manual-audit") return window.location.href = "/report.html?type=manual-audit";
   if (action === "disagree" || action === "report") return window.location.href = "/report.html";

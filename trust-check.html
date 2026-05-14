@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap" type="text/css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap" type="text/css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-      <link rel="stylesheet" href="/public/static-reset.css" />
+      <link rel="stylesheet" href="/public/static-reset.css?v=interaction-fix-3" />
   </head>
   <body data-page="trust-check" style="--design-width:1440;--design-height:2530;">
     <div class="static-scale-frame">
@@ -62,7 +62,7 @@
             <div data-role="ELEMENT_WITH_LABEL_CONTENT_WRAPPER" class="flex flex-col justify-center h-full w-full">
               <div data-role="ELEMENT_WITH_LABEL_INPUT_WRAPPER" class="relative flex items-center w-full flex-grow px-[16px] bg-[#000000]/[0] rounded-[10px] gap-[6px]">
                 <img class="w-[20px] h-[20px] text-[#E0E0E6]/[1]" data-icon="Lucide_search_Outlined" src="/assets/trust-check/IMG_1.svg" alt="Lucide_search_Outlined">
-                <input type="text" value="" placeholder="Search HakikiHub by Name or License Number (e.g., A-1234)..." class="w-full flex-1 text-[#E0E0E6]/[1] text-[14px] leading-[22px] font-[400] font-[Roboto] text-left placeholder:text-[#E0E0E6]/[1] outline-none bg-transparent border-none" />
+                <input type="text" value="" placeholder="Search HakikiHub by Name or License Number (e.g., A-1234)..." class="trust-query-input w-full flex-1 text-[#E0E0E6]/[1] text-[14px] leading-[22px] font-[400] font-[Roboto] text-left placeholder:text-[#E0E0E6]/[1] outline-none bg-transparent border-none" />
               </div>
             </div>
           </div>
@@ -73,7 +73,7 @@
               <img data-type="ICON" class="absolute top-[20px] left-[123px] z-[1] w-[16px] h-[16px] text-[#F9F9FB]/[1] opacity-[1]" data-icon="Lucide_chevron-down_Outlined" src="/assets/trust-check/IMG_5.svg" alt="Lucide_chevron-down_Outlined">
             </div>
           </div>
-          <button data-route-button="true" data-type="BUTTON" class="absolute top-[9px] left-[735px] z-[1] min-w-[151.671875px] h-[56px] flex items-center justify-center gap-[0px] bg-[#3DD6F5]/[1] rounded-[10px] opacity-[1]">
+          <button data-action="execute-search" data-type="BUTTON" class="absolute top-[9px] left-[735px] z-[1] min-w-[151.671875px] h-[56px] flex items-center justify-center gap-[0px] bg-[#3DD6F5]/[1] rounded-[10px] opacity-[1]">
             <span class="whitespace-nowrap text-[14px] leading-[22px] font-[600] font-[Roboto] text-[#181820]/[1]"> Verify Identity </span>
           </button>
         </div>
@@ -317,7 +317,7 @@
 </div>
 
       </div>
-    <script src="/public/app.js"></script>
+    <script src="/public/app.js?v=interaction-fix-3"></script>
   </body>
 </html>
 

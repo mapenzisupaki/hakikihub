@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap" type="text/css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&amp;display=swap" type="text/css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-      <link rel="stylesheet" href="/public/static-reset.css" />
+      <link rel="stylesheet" href="/public/static-reset.css?v=interaction-fix-3" />
   </head>
   <body data-page="report" style="--design-width:1440;--design-height:1789;">
     <div class="static-scale-frame">
@@ -116,7 +116,7 @@
         <div data-role="ELEMENT_WITH_LABEL_CONTENT_WRAPPER" class="flex flex-col justify-center h-full w-full">
           <label data-style="BASIC" class="block pb-[12px] z-10 text-[14px] leading-[22px] font-[500] font-[Roboto] text-[#F9F9FB]/[1]"> Subject / Institution Name </label>
           <div data-role="ELEMENT_WITH_LABEL_INPUT_WRAPPER" class="relative flex items-center w-full flex-grow py-[8px] px-[12px] bg-[#181820]/[1] border-[1px] border-[#5A5A6D]/[1] rounded-[10px] gap-[6px]">
-            <input type="text" value="" placeholder="e.g. Dr. John Doe or XYZ Medical Clinic" class="w-full flex-1 text-[#E0E0E6]/[1] text-[14px] leading-[22px] font-[400] font-[Roboto] text-left placeholder:text-[#E0E0E6]/[1] outline-none bg-transparent border-none" />
+            <input type="text" value="" placeholder="e.g. Dr. John Doe or XYZ Medical Clinic" class="report-subject-input w-full flex-1 text-[#E0E0E6]/[1] text-[14px] leading-[22px] font-[400] font-[Roboto] text-left placeholder:text-[#E0E0E6]/[1] outline-none bg-transparent border-none" />
           </div>
         </div>
       </div>
@@ -124,15 +124,15 @@
         <div data-role="ELEMENT_WITH_LABEL_CONTENT_WRAPPER" class="flex flex-col justify-center h-full w-full">
           <label data-style="BASIC" class="block pb-[12px] z-10 text-[14px] leading-[22px] font-[500] font-[Roboto] text-[#F9F9FB]/[1]"> Incident Description </label>
           <div data-role="ELEMENT_WITH_LABEL_INPUT_WRAPPER" class="relative w-full flex flex-1 flex-grow py-[8px] px-[12px] bg-[#181820]/[1] border-[1px] border-[#5A5A6D]/[1] rounded-[10px] ring-[5px] ring-[#5A5A6D]/[0]">
-            <textarea class="w-full whitespace-pre-wrap text-[#E0E0E6]/[1] text-[14px] leading-[22px] font-[400] font-[Roboto] text-left outline-none bg-transparent border-none resize-none overflow-hidden" placeholder="Please provide as much detail as possible about the fraud or quackery observed...">
+            <textarea class="report-description-input w-full whitespace-pre-wrap text-[#E0E0E6]/[1] text-[14px] leading-[22px] font-[400] font-[Roboto] text-left outline-none bg-transparent border-none resize-none overflow-hidden" placeholder="Please provide as much detail as possible about the fraud or quackery observed...">
 
         </textarea>
           </div>
           <div data-role="TEXTAREA_RESIZE_HANDLER" class="absolute right-[5px] bottom-[5px]"><img src="/assets/report/IMG_7.svg" alt="textarea-resize-handle-icon"></div>
         </div>
       </div>
-      <button data-route-button="true" data-type="BUTTON" class="absolute top-[438px] left-[466px] z-[4] min-w-[162.375px] h-[48px] px-[32px] flex items-center justify-center gap-[7px] bg-[#3DD6F5]/[1] rounded-[10px] shadow-[0px_4px_8px_0px_#0C0C0E2e] opacity-[1]">
-        <span class="whitespace-nowrap text-[16px] leading-[26px] font-[700] font-[Roboto] text-[#181820]/[1]"> Next Step </span>
+      <button data-action="submit-report" data-type="BUTTON" class="absolute top-[438px] left-[418px] z-[4] min-w-[210px] h-[48px] px-[32px] flex items-center justify-center gap-[7px] bg-[#3DD6F5]/[1] rounded-[10px] shadow-[0px_4px_8px_0px_#0C0C0E2e] opacity-[1]">
+        <span class="whitespace-nowrap text-[16px] leading-[26px] font-[700] font-[Roboto] text-[#181820]/[1]"> Submit Secure Report </span>
         <img class="w-[20px] h-[20px] text-[#181820]/[1]" data-icon="Lucide_arrow-right_Outlined" src="/assets/report/IMG_8.svg" alt="Lucide_arrow-right_Outlined">
       </button>
     </div>
@@ -211,7 +211,7 @@
 </div>
 
       </div>
-    <script src="/public/app.js"></script>
+    <script src="/public/app.js?v=interaction-fix-3"></script>
   </body>
 </html>
 
